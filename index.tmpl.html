@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>:root { color-scheme: light dark; }</style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            p { margin: 0; } 
+            .content { margin-top: 1em } 
+            time { opacity: 0.5 }
+            a {
+                text-decoration: none;
+                cursor: pointer;
+            }
+        </style>
+  </head>
+  <body>
+    <pre><a href="#add" id="add-open">[+] add todo</a>
+    <dialog id="add-dialog"><form id="add-form"><pre><b>add todo</b> <a id="add-close" href="#close-add">[close]</a>
+
+<label for="add-title">title</label>
+<input name="title" id="add-title">
+
+<label for="add-description">description</label>
+<textarea name="description" id="add-description"></textarea>
+
+<label for="add-secret">secret</label>
+<input name="secret" id="add-secret">
+
+<a id="add-submit" href="#submit-add">[submit]</a>
+</pre></form></dialog>{{}}</pre>
+    <script>
+        const addOpen = document.querySelector("#add-open");
+        const addClose = document.querySelector("#add-close");
+        const addSubmit = document.querySelector("#add-submit");
+        const addForm = document.querySelector("#add-form");
+        const addDialog = document.querySelector("#add-dialog");
+
+        addOpen.addEventListener("click", (ev) => {
+            event.preventDefault();
+            addDialog.showModal();
+        })
+
+        addClose.addEventListener("click", (ev) => {
+            event.preventDefault();
+            addDialog.close();
+        })
+
+        addSubmit.addEventListener("click", async (ev) => {
+            event.preventDefault();
+            const title = addForm.elements.title.value;
+            const description = addForm.elements.description.value;
+            const secret = addForm.elements.secret.value;
+
+            const body = JSON.stringify({title, description, secret});
+            const response = await (await fetch("/add", {
+                body,
+                method: "POST",
+                headers: new Headers({"Content-Type": "application/json"})
+            })).json();
+
+            if (response.type !== "ok") {
+                alert(JSON.stringify(response));
+                return;
+            }
+            location.reload();
+        })
+
+        const removes = document.querySelectorAll(".remove");
+        let secret;
+        for (const remove of removes) {
+            remove.addEventListener("click", async (ev) => {
+                ev.preventDefault();
+                if (!secret) { secret = prompt("enter secret"); }
+                if (!secret) { return; }
+                const id = remove.dataset.todo;
+                const body = JSON.stringify({ id, secret });
+                const response = await (await fetch("/remove", {
+                    body,
+                    method: "POST",
+                    headers: new Headers({"Content-Type": "application/json"})
+                })).json();
+                if (response.type !== "ok") {
+                    alert(JSON.stringify(response));
+                    return;
+                }
+                location.reload();
+            })
+        }
+    </script>
+  </body>
+</html>
