@@ -2,8 +2,12 @@ import { Application } from "jsr:@oak/oak/application";
 import { Router } from "jsr:@oak/oak/router";
 import { load, save, Time, timeFromDate, Todo } from "./mod.ts";
 
+function pad(value: number, length: number = 2): string {
+  return value.toString().padStart(length, "0");
+}
+
 function formatDate({ year, month, date, hour, minute }: Time): string {
-  return `${date}/${month}-${year} ${hour}:${minute}`;
+  return `${pad(date)}/${pad(month)}-${year} ${pad(hour)}:${pad(minute)}`;
 }
 
 type AddBody = {
