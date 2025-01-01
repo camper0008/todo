@@ -75,7 +75,7 @@ async function listen(port: number) {
       ctx.response.body = { type: "error", msg: "bad id" };
       return;
     }
-    todos.splice(index);
+    todos.splice(index, 1);
     await save(todos);
     ctx.response.body = { type: "ok" };
   });
