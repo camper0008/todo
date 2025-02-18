@@ -1,0 +1,16 @@
+:root {
+    color-scheme: light dark;
+}
+
+p {
+    margin: 0;
+}
+
+time {
+    opacity: 0.5;
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+}

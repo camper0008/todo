@@ -1,14 +1,8 @@
 import { Application } from "jsr:@oak/oak/application";
 import { Router } from "jsr:@oak/oak/router";
-import { load, save, Time, timeFromDate, Todo } from "./mod.ts";
-
-function pad(value: number, length: number = 2): string {
-  return value.toString().padStart(length, "0");
-}
-
-function formatDate({ year, month, date, hour, minute }: Time): string {
-  return `${pad(date)}/${pad(month)}-${year} ${pad(hour)}:${pad(minute)}`;
-}
+import vento from "jsr:@vento/vento";
+import { load, save, timeFromDate, Todo } from "./mod.ts";
+import { send } from "jsr:@oak/oak/send";
 
 type AddBody = {
   title: Todo["title"];
@@ -21,31 +15,23 @@ type RemoveBody = {
   secret: string;
 };
 
-function formatTodo(todo: Todo) {
-  return `<p class="title"><b>- ${todo.title}</b> <a class="remove" data-todo="${todo.id}" href="#remove-${todo.id}">[x]</a> <time>(${
-    formatDate(todo.time)
-  })</time></p><p class="content">    ${
-    todo.description.replaceAll("\n", "\n  ")
-  }</p>`;
-}
-
-async function listen(port: number) {
-  const secret = prompt("enter secret:");
-
+async function listen({ port, secret }: Config) {
   const todos = await load();
   await save(todos);
 
+  const env = vento();
   const routes = new Router();
 
   routes.get("/", async (ctx) => {
-    const template = await Deno.readTextFile("index.tmpl.html").then((v) =>
-      v
-        .replaceAll(
-          "{{}}",
-          todos.map(formatTodo).join("\n"),
-        )
-    );
-    ctx.response.body = template;
+    const result = await env.run("tmpl/index.vto", { todos });
+    ctx.response.body = result.content;
+  });
+
+  routes.get("/public/:_+", async (ctx) => {
+    const filePath = ctx.request.url.pathname.replace("/public", "");
+    await send(ctx, filePath, {
+      root: "./public",
+    });
   });
 
   routes.get("/todos", (ctx) => {
@@ -91,19 +77,30 @@ async function listen(port: number) {
   await app.listen({ port });
 }
 
-async function main() {
+type Config = {
+  secret: string;
+  port: number;
+};
+
+async function configFromFile(path: string): Promise<Config | null> {
   try {
-    const port = parseInt(Deno.args[0]);
-    if (isNaN(port)) {
-      console.error(`invalid port '${Deno.args[0]}'`);
-      return;
+    return JSON.parse(await Deno.readTextFile(path));
+  } catch (err) {
+    if (!(err instanceof Deno.errors.NotFound)) {
+      throw err;
     }
-    await listen(
-      port,
-    );
-  } catch {
-    console.error(`invalid port '${Deno.args[0]}'`);
+    return null;
   }
+}
+
+async function main() {
+  const configPath = "conf.json";
+  const config = await configFromFile(configPath);
+  if (!config) {
+    console.error(`error: could not find config at '${configPath}'`);
+    Deno.exit(1);
+  }
+  await listen(config);
 }
 
 if (import.meta.main) {

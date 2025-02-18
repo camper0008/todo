@@ -1,0 +1,10 @@
+{{- function pad(value, length = 2) -}}
+  {{ value.toString().padStart(length, "0") }}
+{{- /function -}}
+
+{{- function formatDate({ year, month, date, hour, minute }) -}}
+  {{pad(date)}}/{{pad(month)}}-{{year}} {{pad(hour)}}:{{pad(minute)}}
+{{- /function -}}
+
+<p class="title"><b>- {{todo.title}}</b> <a class="remove" data-todo="{{todo.id}}" href="#remove-{{todo.id}}">[x]</a> <time>({{formatDate(todo.time)}})</time></p>
+<p class="content">    {{todo.description.replaceAll("\n", "\n  ")}}</p>
