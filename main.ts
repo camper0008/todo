@@ -83,8 +83,11 @@ async function listen(port: number) {
   const app = new Application();
   app.use(routes.routes());
   app.use(routes.allowedMethods());
+  app.addEventListener(
+    "listen",
+    ({ port }) => console.log("listening on", port),
+  );
 
-  console.log("listening on", port);
   await app.listen({ port });
 }
 
@@ -92,14 +95,14 @@ async function main() {
   try {
     const port = parseInt(Deno.args[0]);
     if (isNaN(port)) {
-      console.error(`invalid port "${Deno.args[0]}"`);
+      console.error(`invalid port '${Deno.args[0]}'`);
       return;
     }
     await listen(
       port,
     );
   } catch {
-    console.error(`invalid port "${Deno.args[0]}"`);
+    console.error(`invalid port '${Deno.args[0]}'`);
   }
 }
 
