@@ -6,5 +6,11 @@
   {{pad(date)}}/{{pad(month)}}-{{year}} {{pad(hour)}}:{{pad(minute)}}
 {{- /function -}}
 
-<p class="title"><b>- {{todo.title}}</b> <a class="edit" data-todo="{{todo.id}}" href="#edit-{{todo.id}}">[r]</a> <a class="remove" data-todo="{{todo.id}}" href="#remove-{{todo.id}}">[x]</a> <time>({{formatDate(todo.time)}})</time></p>
-<p class="content">{{todo.description}}</p>
+<p class="title">
+  <b>- {{todo.title}}</b> 
+  <a class="edit" data-todo="{{todo.id}}" data-todo-title="{{todo.title}}" data-todo-description="{{todo.description}}" href="#edit-{{todo.id}}">[r]</a>
+  <a class="remove" data-todo="{{todo.id}}" href="#remove-{{todo.id}}">[x]</a>
+  <time>({{formatDate(todo.time)}})</time>
+</p>
+
+<p class="description">{{todo.description}}</p>
