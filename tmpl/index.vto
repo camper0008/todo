@@ -7,28 +7,40 @@
   </head>
   <body>
 
-  <dialog id="add-dialog">
-    <form id="add-form">
-<pre><b>add todo</b> <a id="add-close" href="#close-add">[close]</a>
+    <dialog id="edit-dialog">
+      <form id="edit-form">
+        <span class="form-toolbar"><b>edit todo</b> <a id="edit-close" href="#close-edit">[close]</a></span>
 
-<label for="add-title">title</label>
-<input name="title" id="add-title">
+        <input name="id" id="edit-id" type="hidden">
 
-<label for="add-description">description</label>
-<textarea name="description" id="add-description"></textarea>
+        <label for="edit-title">title</label>
+        <input name="title" id="edit-title">
 
-<label for="add-secret">secret</label>
-<input name="secret" id="add-secret">
+        <label for="edit-description">description</label>
+        <textarea name="description" id="edit-description"></textarea>
 
-<a id="add-submit" href="#submit-add">[submit]</a></pre>
-  </form>
-</dialog>
-    <pre>
-<a href="#add" id="add-open">[+] add todo</a>
+        <a id="edit-submit" href="#submit-edit">[submit]</a>
+      </form>
+    </dialog>
 
-  {{ for todo of todos -}}
-    {{ include "./todo.vto" { todo } }}
-  {{- /for -}}
-</pre>
+    <dialog id="add-dialog">
+      <form id="add-form">
+        <span class="form-toolbar"><b>add todo</b> <a id="add-close" href="#close-add">[close]</a></span>
+
+        <label for="add-title">title</label>
+        <input name="title" id="add-title">
+
+        <label for="add-description">description</label>
+        <textarea name="description" id="add-description"></textarea>
+
+        <a id="add-submit" href="#submit-add">[submit]</a>
+      </form>
+    </dialog>
+
+    <a href="#add" id="add-open">[+] add todo</a>
+
+    {{ for todo of todos -}}
+      {{ include "./todo.vto" { todo } }}
+    {{- /for -}}
   </body>
 </html>

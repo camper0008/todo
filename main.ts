@@ -10,6 +10,13 @@ type AddBody = {
   secret: string;
 };
 
+type EditBody = {
+  id: Todo["id"];
+  title: Todo["title"];
+  description: Todo["description"];
+  secret: string;
+};
+
 type RemoveBody = {
   id: Todo["id"];
   secret: string;
@@ -40,7 +47,7 @@ async function listen({ port, secret, hostname }: Config) {
   routes.post("/add", async (ctx) => {
     const body: AddBody = await ctx.request.body.json();
     if (body.secret !== secret) {
-      ctx.response.body = { type: "error", msg: "bad secret" };
+      ctx.response.body = { type: "error", error: "bad_secret" };
       return;
     }
     const { title, description } = body;
@@ -50,15 +57,31 @@ async function listen({ port, secret, hostname }: Config) {
     await save(todos);
     ctx.response.body = { type: "ok" };
   });
+  routes.post("/edit", async (ctx) => {
+    const body: EditBody = await ctx.request.body.json();
+    if (body.secret !== secret) {
+      ctx.response.body = { type: "error", error: "bad_secret" };
+      return;
+    }
+    const todo = todos.find((v) => v.id === body.id);
+    if (todo === undefined) {
+      ctx.response.body = { type: "error", error: "bad_id" };
+      return;
+    }
+    todo.title = body.title;
+    todo.description = body.description;
+    await save(todos);
+    ctx.response.body = { type: "ok" };
+  });
   routes.post("/remove", async (ctx) => {
     const body: RemoveBody = await ctx.request.body.json();
     if (body.secret !== secret) {
-      ctx.response.body = { type: "error", msg: "bad secret" };
+      ctx.response.body = { type: "error", error: "bad_secret" };
       return;
     }
     const index = todos.findIndex((v) => v.id === body.id);
     if (index === -1) {
-      ctx.response.body = { type: "error", msg: "bad id" };
+      ctx.response.body = { type: "error", error: "bad_id" };
       return;
     }
     todos.splice(index, 1);
