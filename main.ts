@@ -15,7 +15,7 @@ type RemoveBody = {
   secret: string;
 };
 
-async function listen({ port, secret }: Config) {
+async function listen({ port, secret, hostname }: Config) {
   const todos = await load();
   await save(todos);
 
@@ -69,17 +69,17 @@ async function listen({ port, secret }: Config) {
   const app = new Application();
   app.use(routes.routes());
   app.use(routes.allowedMethods());
-  app.addEventListener(
-    "listen",
-    ({ port }) => console.log("listening on", port),
-  );
+  app.addEventListener("listen", ({ port, hostname }) => {
+    console.log(`listening on ${hostname},`, port);
+  });
 
-  await app.listen({ port });
+  await app.listen({ port, hostname });
 }
 
 type Config = {
-  secret: string;
   port: number;
+  hostname: string;
+  secret: string;
 };
 
 async function configFromFile(path: string): Promise<Config | null> {
